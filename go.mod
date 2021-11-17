@@ -1,3 +1,3 @@
-module github.com/XciD/traefik-plugin-rewrite-headers
+module github.com/vincentinttsh/rewriteheaders-for-traefik
 
-go 1.16
+go 1.15

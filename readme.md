@@ -13,8 +13,8 @@ pilot:
 experimental:
   plugins:
     rewriteHeaders:
-      modulename: "github.com/XciD/traefik-plugin-rewrite-headers"
-      version: "v0.0.1"
+      modulename: "github.com/vincentinttsh/rewriteheaders-for-traefik"
+      version: "v1.0.0"
 ```
 
 ### Dynamic
