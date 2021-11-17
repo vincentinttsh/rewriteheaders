@@ -28,7 +28,7 @@ func CreateConfig() *Config {
 }
 
 // LoggerINFO Main logger
-var LoggerINFO = log.New(ioutil.Discard, "INFO: Fail2Ban: ", log.Ldate|log.Ltime|log.Lshortfile)
+var LoggerINFO = log.New(ioutil.Discard, "INFO: rewriteHeader: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 type rewrite struct {
 	header      string
@@ -46,13 +46,12 @@ type rewriteBody struct {
 func New(_ context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
 	rewrites := make([]rewrite, len(config.Rewrites))
 	LoggerINFO.SetOutput(os.Stdout)
-	fmt.Println(config.Rewrites)
 	for i, rewriteConfig := range config.Rewrites {
 		regex, err := regexp.Compile(rewriteConfig.Regex)
 		if err != nil {
 			return nil, fmt.Errorf("error compiling regex %q: %w", rewriteConfig.Regex, err)
 		}
-		fmt.Printf("header %s: %q -> %s ", rewriteConfig.Header, regex, rewriteConfig.Replacement)
+		LoggerINFO.Printf("header %s: %q -> %s\n", rewriteConfig.Header, regex, rewriteConfig.Replacement)
 		rewrites[i] = rewrite{
 			header:      rewriteConfig.Header,
 			regex:       regex,
