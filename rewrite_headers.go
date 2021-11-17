@@ -60,35 +60,21 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 }
 
 func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	wrappedWriter := &responseWriter{
-		ResponseWriter: rw,
-		rewrites:       r.rewrites,
-	}
-
-	r.next.ServeHTTP(wrappedWriter, req)
-}
-
-type responseWriter struct {
-	http.ResponseWriter
-	rewrites []rewrite
-}
-
-func (r *responseWriter) WriteHeader(statusCode int) {
-	fmt.Println(r.Header())
+	fmt.Println(req.Header)
 	for _, rewrite := range r.rewrites {
-		headers := r.Header().Values(rewrite.header)
+		headers := req.Header.Values(rewrite.header)
 
 		if len(headers) == 0 {
 			continue
 		}
 
-		r.Header().Del(rewrite.header)
+		req.Header.Del(rewrite.header)
 
 		for _, header := range headers {
 			value := rewrite.regex.ReplaceAllString(header, rewrite.replacement)
-			r.Header().Add(rewrite.header, value)
+			req.Header.Add(rewrite.header, value)
 		}
 	}
 
-	r.ResponseWriter.WriteHeader(statusCode)
+	r.next.ServeHTTP(rw, req)
 }
