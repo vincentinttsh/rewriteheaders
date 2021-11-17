@@ -74,6 +74,7 @@ type responseWriter struct {
 }
 
 func (r *responseWriter) WriteHeader(statusCode int) {
+	fmt.Println(r.Header())
 	for _, rewrite := range r.rewrites {
 		headers := r.Header().Values(rewrite.header)
 
