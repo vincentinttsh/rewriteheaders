@@ -1,3 +1,3 @@
-module github.com/vincentinttsh/rewriteheaders-for-traefik
+module github.com/vincentinttsh/rewriteheaders
 
 go 1.15

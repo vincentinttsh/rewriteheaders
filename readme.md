@@ -13,7 +13,7 @@ pilot:
 experimental:
   plugins:
     rewriteHeaders:
-      modulename: "github.com/vincentinttsh/rewriteheaders-for-traefik"
+      modulename: "github.com/vincentinttsh/rewriteheaders"
       version: "v1.0.0"
 ```
 

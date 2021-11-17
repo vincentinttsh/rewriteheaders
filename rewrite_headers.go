@@ -1,5 +1,5 @@
 //nolint
-package traefik_plugin_rewrite_headers
+package rewriteheaders
 
 import (
 	"context"

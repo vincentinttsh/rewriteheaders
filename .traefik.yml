@@ -1,6 +1,6 @@
 displayName: Rewrite Header for traefik
 type: middleware
-import: github.com/vincentinttsh/rewriteheaders-for-traefik
+import: github.com/vincentinttsh/rewriteheaders
 
 summary: Rewrites the HTTP response headers by replacing a search regex by a replacement string.
 
