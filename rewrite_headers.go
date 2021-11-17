@@ -60,19 +60,19 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 }
 
 func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	fmt.Println(req.Header)
+	fmt.Println(rw.Header())
 	for _, rewrite := range r.rewrites {
-		headers := req.Header.Values(rewrite.header)
+		headers := rw.Header().Values(rewrite.header)
 
 		if len(headers) == 0 {
 			continue
 		}
 
-		req.Header.Del(rewrite.header)
+		rw.Header().Del(rewrite.header)
 
 		for _, header := range headers {
 			value := rewrite.regex.ReplaceAllString(header, rewrite.replacement)
-			req.Header.Add(rewrite.header, value)
+			rw.Header().Add(rewrite.header, value)
 		}
 	}
 
