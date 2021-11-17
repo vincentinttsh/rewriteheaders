@@ -1,8 +1,9 @@
-displayName: Rewrite Header
-summary: Rewrites the HTTP response headers by replacing a search regex by a replacement string.
+displayName: Rewrite Header for traefik
 type: middleware
-import: github.com/vincentinttsh/traefik-plugin-rewrite-headers
-compatibility: TODO
+import: github.com/vincentinttsh/rewriteheaders-for-traefik
+
+summary: Rewrites the HTTP response headers by replacing a search regex by a replacement string.
+
 testData:
   rewrites:
     - header: Location
