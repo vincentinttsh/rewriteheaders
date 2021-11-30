@@ -27,7 +27,7 @@ func CreateConfig() *Config {
 type rewrite struct {
 	header      string
 	regex       *regexp.Regexp
-	replacement string
+	replacement []byte
 }
 
 type rewriteBody struct {
@@ -48,7 +48,7 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		rewrites[i] = rewrite{
 			header:      rewriteConfig.Header,
 			regex:       regex,
-			replacement: rewriteConfig.Replacement,
+			replacement: []byte(rewriteConfig.Replacement),
 		}
 	}
 
@@ -59,29 +59,23 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 	}, nil
 }
 
-func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	for _, m := range rw.Header().Clone() {
+type responseWriter struct {
+	http.ResponseWriter
+}
 
-		// m is a map[string]interface.
-		// loop over keys and values in the map.
+func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	wrappedWriter := &responseWriter{
+		ResponseWriter: rw,
+	}
+
+	r.next.ServeHTTP(wrappedWriter, req)
+
+	contentEncoding := wrappedWriter.Header().Get("Content-Encoding")
+	fmt.Println(contentEncoding)
+	for k, m := range wrappedWriter.Header().Clone() {
+		fmt.Printf("%s:\n", k)
 		for k, v := range m {
 			fmt.Println(k, "value is", v)
 		}
 	}
-	for _, rewrite := range r.rewrites {
-		headers := rw.Header().Values(rewrite.header)
-
-		if len(headers) == 0 {
-			continue
-		}
-
-		rw.Header().Del(rewrite.header)
-
-		for _, header := range headers {
-			value := rewrite.regex.ReplaceAllString(header, rewrite.replacement)
-			rw.Header().Add(rewrite.header, value)
-		}
-	}
-
-	r.next.ServeHTTP(rw, req)
 }
