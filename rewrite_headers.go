@@ -30,7 +30,7 @@ type rewrite struct {
 	replacement []byte
 }
 
-type rewriteBody struct {
+type rewriteHeader struct {
 	name     string
 	next     http.Handler
 	rewrites []rewrite
@@ -51,18 +51,17 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		}
 	}
 
-	return &rewriteBody{
+	return &rewriteHeader{
 		name:     name,
 		next:     next,
 		rewrites: rewrites,
 	}, nil
 }
 
-func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (r *rewriteHeader) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	r.next.ServeHTTP(rw, req)
 
-	Location := rw.Header().Get("Location")
 	for _, rewrite := range r.rewrites {
 		headers := rw.Header().Get(rewrite.header)
 
@@ -73,9 +72,6 @@ func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Del(rewrite.header)
 
 		value := rewrite.regex.ReplaceAll([]byte(headers), rewrite.replacement)
-		fmt.Println("value" + string(value))
 		rw.Header().Add(rewrite.header, string(value))
 	}
-	Location = rw.Header().Get("Location")
-	fmt.Println(Location)
 }
