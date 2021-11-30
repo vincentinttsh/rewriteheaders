@@ -44,7 +44,7 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		if err != nil {
 			return nil, fmt.Errorf("error compiling regex %q: %w", rewriteConfig.Regex, err)
 		}
-		fmt.Printf("header %s: %q -> %s\n", rewriteConfig.Header, regex, rewriteConfig.Replacement)
+		// fmt.Printf("header %s: %q -> %s\n", rewriteConfig.Header, regex, rewriteConfig.Replacement)
 		rewrites[i] = rewrite{
 			header:      rewriteConfig.Header,
 			regex:       regex,
@@ -60,7 +60,14 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 }
 
 func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	fmt.Println(rw.Header())
+	for _, m := range rw.Header().Clone() {
+
+		// m is a map[string]interface.
+		// loop over keys and values in the map.
+		for k, v := range m {
+			fmt.Println(k, "value is", v)
+		}
+	}
 	for _, rewrite := range r.rewrites {
 		headers := rw.Header().Values(rewrite.header)
 
