@@ -44,7 +44,6 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		if err != nil {
 			return nil, fmt.Errorf("error compiling regex %q: %w", rewriteConfig.Regex, err)
 		}
-		// fmt.Printf("header %s: %q -> %s\n", rewriteConfig.Header, regex, rewriteConfig.Replacement)
 		rewrites[i] = rewrite{
 			header:      rewriteConfig.Header,
 			regex:       regex,
@@ -70,12 +69,18 @@ func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	r.next.ServeHTTP(wrappedWriter, req)
 
-	contentEncoding := wrappedWriter.Header().Get("Content-Encoding")
-	fmt.Println(contentEncoding)
-	for k, m := range wrappedWriter.Header().Clone() {
-		fmt.Printf("%s:\n", k)
-		for k, v := range m {
-			fmt.Println(k, "value is", v)
+	Location := wrappedWriter.Header().Get("Location")
+	fmt.Println(Location)
+	for _, rewrite := range r.rewrites {
+		headers := wrappedWriter.Header().Get(rewrite.header)
+
+		if len(headers) == 0 {
+			continue
 		}
+
+		value := rewrite.regex.ReplaceAll([]byte(headers), rewrite.replacement)
+		rw.Header().Set(rewrite.header, string(value))
 	}
+	Location = wrappedWriter.Header().Get("Location")
+	fmt.Println(Location)
 }
