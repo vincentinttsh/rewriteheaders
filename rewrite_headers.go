@@ -58,29 +58,24 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 	}, nil
 }
 
-type responseWriter struct {
-	http.ResponseWriter
-}
-
 func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	wrappedWriter := &responseWriter{
-		ResponseWriter: rw,
-	}
 
 	r.next.ServeHTTP(rw, req)
 
-	Location := wrappedWriter.Header().Get("Location")
-	fmt.Println(Location)
+	Location := rw.Header().Get("Location")
 	for _, rewrite := range r.rewrites {
-		headers := wrappedWriter.Header().Get(rewrite.header)
+		headers := rw.Header().Get(rewrite.header)
 
 		if len(headers) == 0 {
 			continue
 		}
 
+		rw.Header().Del(rewrite.header)
+
 		value := rewrite.regex.ReplaceAll([]byte(headers), rewrite.replacement)
-		rw.Header().Set(rewrite.header, string(value))
+		fmt.Println("value" + string(value))
+		rw.Header().Add(rewrite.header, string(value))
 	}
-	Location = wrappedWriter.Header().Get("Location")
+	Location = rw.Header().Get("Location")
 	fmt.Println(Location)
 }
