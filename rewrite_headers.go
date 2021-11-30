@@ -67,7 +67,7 @@ func (r *rewriteBody) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		ResponseWriter: rw,
 	}
 
-	r.next.ServeHTTP(wrappedWriter, req)
+	r.next.ServeHTTP(rw, req)
 
 	Location := wrappedWriter.Header().Get("Location")
 	fmt.Println(Location)
